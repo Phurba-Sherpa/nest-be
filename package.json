@@ -24,5 +24,8 @@
   "type": "module",
   "devDependencies": {
     "turbo": "^2.10.11"
+  },
+  "dependencies": {
+    "better-auth": "^1.7.1"
   }
 }
