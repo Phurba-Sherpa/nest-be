@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { randomUUID } from 'node:crypto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import type { UUID } from 'node:crypto';
 
 @Injectable()
 export class ProfilesService {
@@ -27,8 +28,13 @@ export class ProfilesService {
     return this.profiles;
   }
 
-  getById(id: string) {
-    return this.profiles.find((_prof) => _prof.id === id);
+  getById(id: UUID) {
+    const profile = this.profiles.find((_prof) => _prof.id === id);
+
+    if (!profile) {
+      throw new NotFoundException(`Profile with ID: ${id} doesn't exists.`);
+    }
+    return profile;
   }
 
   create(payload: CreateProfileDto) {
@@ -41,30 +47,27 @@ export class ProfilesService {
     return payloadToSave;
   }
 
-  update(id: string, payload: UpdateProfileDto) {
-    const profileExists = this.profiles.findIndex((_prof) => _prof.id === id);
+  update(id: UUID, payload: UpdateProfileDto) {
+    const profileToUpdate = this.profiles.findIndex((_prof) => _prof.id === id);
 
-    if (profileExists != -1) {
-      this.profiles.map((_prof) =>
-        _prof.id === id
-          ? { ..._prof, name: payload.name, description: payload.description }
-          : _prof,
-      );
-
-      return {
-        ...payload,
-        id,
-      };
+    if (profileToUpdate === -1) {
+      throw new NotFoundException(`Profile with ID: ${id} doesn't exists`);
     }
-    return payload;
+
+    this.profiles.splice(profileToUpdate, 1, { ...payload, id });
+
+    return {
+      ...payload,
+      id,
+    };
   }
 
-  delete(id: string) {
+  delete(id: UUID) {
     const deleteIndex = this.profiles.findIndex((_prof) => _prof.id === id);
 
-    if (deleteIndex != -1) {
-      this.profiles.splice(deleteIndex, 1);
-      console.log('.');
+    if (deleteIndex === -1) {
+      throw new NotFoundException(`Profile with ID: ${id} doesn't exists`);
     }
+    this.profiles.splice(deleteIndex, 1);
   }
 }

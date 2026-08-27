@@ -6,13 +6,15 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseUUIDPipe,
   Post,
   Put,
-  Query,
+  ValidationPipe,
 } from '@nestjs/common';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ProfilesService } from './profiles.service';
+import type { UUID } from 'node:crypto';
 
 @Controller('profiles')
 export class ProfilesController {
@@ -25,26 +27,27 @@ export class ProfilesController {
 
   // GET profiles/:id
   @Get(':id')
-  getById(@Param('id') id: string) {
+  getById(@Param('id', ParseUUIDPipe) id: UUID) {
     return this.profileService.getById(id);
   }
   // POST profiles
   @Post()
-  create(@Body() payload: CreateProfileDto) {
+  create(@Body(new ValidationPipe()) payload: CreateProfileDto) {
     return this.profileService.create(payload);
   }
   // PUT profiles/:id
   @Put(':id')
-  update(@Param('id') id: string, @Body() payload: UpdateProfileDto) {
-    console.log('log here');
-
+  update(
+    @Param('id', ParseUUIDPipe) id: UUID,
+    @Body(new ValidationPipe()) payload: UpdateProfileDto,
+  ) {
     return this.profileService.update(id, payload);
   }
 
   // DELETE profiles/:id
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  delete(@Param('id') id: string) {
+  delete(@Param('id', ParseUUIDPipe) id: UUID) {
     this.profileService.delete(id);
   }
 }
