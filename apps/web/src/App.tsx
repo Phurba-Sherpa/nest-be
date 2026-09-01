@@ -1,70 +1,55 @@
-import "./App.css";
-import { authClient } from "./lib/auth";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp";
+import Dashboard from "./pages/Dashboard";
+import auth from "./lib/auth";
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  image?: string;
+}
 
 function App() {
-  const signInGoogle = async () => {
-    authClient.signIn.social(
-      {
-        provider: "google",
-        callbackURL: "http://localhost:5174/dashboard",
-      },
-      {
-        onError: (ctx) => {
-          console.log("success", ctx);
-        },
-        onSuccess: (ctx) => {},
-      },
-    );
-  };
+  const { data: session, isPending } = auth.useSession();
 
-  const signIn = async () => {
-    authClient.signIn.email(
-      {
-        email: "nestjs@yopmail.com",
-        password: "Test@321",
-      },
-      {
-        onSuccess: (ctx) => {
-          console.log("success", ctx);
-        },
-        onError: (ctx) => {
-          console.error("failed", ctx.error.message);
-          alert(ctx.error.message);
-        },
-      },
+  if (isPending) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
     );
-  };
+  }
 
-  const signUp = async () => {
-    authClient.signUp.email(
-      {
-        email: "nestjs@yopmail.com",
-        password: "Test@321",
-        name: "John Doe",
-        callbackURL: "/dashboard",
-        image:
-          "https://images.unsplash.com/photo-1580128637411-80206ae868e5?q=80&w=752&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      },
-      {
-        onError: (ctx) => {
-          console.error("failed", ctx.error.message);
-          alert(ctx.error.message);
-        },
-        onSuccess: (ctx) => {
-          console.log(ctx.data);
-        },
-      },
-    );
-  };
-
+  console.log(session);
   return (
-    <>
-      <section id="center">
-        <button onClick={signIn}>Sign In</button>
-        <button onClick={signInGoogle}>Sign In with Google</button>
-        <button onClick={signUp}>Sign Up</button>
-      </section>
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/"
+          element={<Navigate to={session ? "/dashboard" : "/signin"} />}
+        />
+        <Route
+          path="/signin"
+          element={session ? <Navigate to="/dashboard" /> : <SignIn />}
+        />
+        <Route
+          path="/signup"
+          element={session ? <Navigate to="/dashboard" /> : <SignUp />}
+        />
+        <Route
+          path="/dashboard"
+          element={
+            session ? (
+              <Dashboard session={session} />
+            ) : (
+              <Navigate to="/signin" />
+            )
+          }
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

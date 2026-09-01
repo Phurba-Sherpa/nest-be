@@ -1,8 +1,8 @@
 import { betterAuth } from 'better-auth/minimal';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { prisma } from './prisma';
+import { admin } from 'better-auth/plugins';
 
-console.info('ENV', process.env.BETTER_AUTH_URL);
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL,
   database: prismaAdapter(prisma, {
@@ -20,4 +20,5 @@ export const auth = betterAuth({
       accessType: 'offline',
     },
   },
+  plugins: [admin()],
 });
