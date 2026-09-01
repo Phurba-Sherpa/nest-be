@@ -1,0 +1,23 @@
+services:
+  db:
+    container_name: db
+    image: postgres
+    restart: always
+    shm_size: 128mb
+    ports:
+      - 5433:5432
+
+    volumes:
+      - type: bind
+        source: ./pg-data
+        target: /var/lib/postgresql/18/docker
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: nestjs-db
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
