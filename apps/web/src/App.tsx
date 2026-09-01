@@ -1,122 +1,71 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import "./App.css";
+import { authClient } from "./lib/auth";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const signInGoogle = async () => {
+    authClient.signIn.social(
+      {
+        provider: "google",
+        callbackURL: "http://localhost:5174/dashboard",
+      },
+      {
+        onError: (ctx) => {
+          console.log("success", ctx);
+        },
+        onSuccess: (ctx) => {},
+      },
+    );
+  };
+
+  const signIn = async () => {
+    authClient.signIn.email(
+      {
+        email: "nestjs@yopmail.com",
+        password: "Test@321",
+      },
+      {
+        onSuccess: (ctx) => {
+          console.log("success", ctx);
+        },
+        onError: (ctx) => {
+          console.error("failed", ctx.error.message);
+          alert(ctx.error.message);
+        },
+      },
+    );
+  };
+
+  const signUp = async () => {
+    authClient.signUp.email(
+      {
+        email: "nestjs@yopmail.com",
+        password: "Test@321",
+        name: "John Doe",
+        callbackURL: "/dashboard",
+        image:
+          "https://images.unsplash.com/photo-1580128637411-80206ae868e5?q=80&w=752&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      },
+      {
+        onError: (ctx) => {
+          console.error("failed", ctx.error.message);
+          alert(ctx.error.message);
+        },
+        onSuccess: (ctx) => {
+          console.log(ctx.data);
+        },
+      },
+    );
+  };
 
   return (
     <>
       <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
+        <button onClick={signIn}>Sign In</button>
+        <button onClick={signInGoogle}>Sign In with Google</button>
+        <button onClick={signUp}>Sign Up</button>
       </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
