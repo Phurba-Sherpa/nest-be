@@ -4,13 +4,6 @@ import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import auth from "./lib/auth";
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  image?: string;
-}
-
 function App() {
   const { data: session, isPending } = auth.useSession();
 
