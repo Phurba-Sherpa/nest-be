@@ -1,64 +1,69 @@
+import { useEffect, useState } from "react";
+import auth from "../lib/auth";
+import { Users, type User } from "../components/Users";
+
 interface Session {
   user: {
     id: string;
     name: string;
     email: string;
+    role: string;
     image?: string;
   };
-  expiresAt: Date;
 }
 
 interface DashboardProps {
-  session: Session;
+  session: any;
 }
 
-export default function Dashboard({ session }: DashboardProps) {
-  const handleSignOut = async () => {
-    await fetch("http://localhost:3001/api/auth/sign-out", {
-      method: "POST",
-      credentials: "include",
-    });
+export default function Dashboard({ session: data }: DashboardProps) {
+  const [users, setUsers] = useState<User[]>([]);
+  useEffect(() => {
+    const _fetchUsers = async () => {
+      const { data: responseData, error } = await auth.admin.listUsers({
+        query: {
+          limit: 10,
+        },
+      });
+      console.log("error", error);
+      console.log("data", responseData);
+
+      if (responseData?.users) {
+        setUsers(responseData.users);
+      }
+    };
+    _fetchUsers();
+  }, []);
+
+  const signOut = async () => {
+    await auth.signOut();
   };
-
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-50">
-      <nav className="bg-white dark:bg-gray-800 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 flex items-center">
-                <h1 className="text-xl font-bold text-indigo-600 dark:text-indigo-400">
-                  Turbo App
-                </h1>
-              </div>
-            </div>
-            <div className="flex items-center">
-              <button
-                onClick={handleSignOut}
-                className="ml-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-900 transition-colors"
-              >
-                Sign out
-              </button>
-            </div>
-          </div>
+    <div className="max-w-6xl mx-auto py-20">
+      <div className="flex justify-between items-center border-b border-b-gray-300 py-4">
+        <div>
+          <h2>{data?.user?.name}</h2>
+          <p>{data?.user?.role}</p>
         </div>
-      </nav>
+        <button
+          onClick={signOut}
+          className="bg-indigo-600 text-white py-2 px-6 rounded-md"
+        >
+          Log out
+        </button>
+      </div>
 
-      <main className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
-        <div className="text-center">
-          <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white">
-            Dashboard
-          </h2>
-          <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
-            Welcome to your dashboard! You are successfully authenticated.
-          </p>
-          <div className="mt-8 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
-            <p className="text-sm text-gray-700 dark:text-gray-300">
-              Signed in as: <strong>{session.user.email}</strong>
-            </p>
-          </div>
+      <div className="mt-8">
+        <div className="flex justify-between">
+          <h3 className="text-xl font-semibold leading-6 text-gray-900">
+            Users
+          </h3>
+          <button className="bg-indigo-600 text-white py-2 px-6 rounded-md">
+            + user
+          </button>
         </div>
-      </main>
+        <Users users={users} />
+      </div>
     </div>
   );
 }
